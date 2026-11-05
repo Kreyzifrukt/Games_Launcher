@@ -18,8 +18,9 @@ class GameWindow:
         self.window.geometry(size)
         self.window.minsize(420, 360)
         self.window.configure(bg=BG)
-        self._after_ids = []
+        self._after_ids = set()
         self.window.protocol("WM_DELETE_WINDOW", self.close)
+
         header = tk.Frame(self.window, bg=BG)
         header.pack(fill="x", padx=20, pady=(16, 10))
         tk.Label(
@@ -31,32 +32,41 @@ class GameWindow:
             bg=PANEL, fg=TEXT, activebackground="#374151",
             activeforeground=TEXT, relief="flat", padx=12, pady=5,
         ).pack(side="right")
+
         self.body = tk.Frame(self.window, bg=BG)
         self.body.pack(fill="both", expand=True, padx=20, pady=(0, 20))
 
     def schedule(self, delay, callback):
-        """Schedule a callback and track it so it can be cancelled safely."""
-        after_id = self.window.after(delay, callback)
-        self._after_ids.append(after_id)
-        return after_id
+        """Schedule a callback without retaining completed timer handles."""
+        timer_id = None
+
+        def run_callback():
+            self._after_ids.discard(timer_id)
+            callback()
+
+        timer_id = self.window.after(delay, run_callback)
+        self._after_ids.add(timer_id)
+        return timer_id
 
     def close(self):
         """Cancel pending callbacks and close the game window."""
-        for after_id in self._after_ids:
+        for timer_id in self._after_ids:
             try:
-                self.window.after_cancel(after_id)
+                self.window.after_cancel(timer_id)
             except tk.TclError:
                 pass
         self._after_ids.clear()
         self.window.destroy()
 
     def label(self, parent, text, size=12, color=TEXT, **kwargs):
+        """Create a label using the shared game palette."""
         return tk.Label(
             parent, text=text, bg=kwargs.pop("bg", BG), fg=color,
             font=("Segoe UI", size), **kwargs,
         )
 
     def button(self, parent, text, command, **kwargs):
+        """Create a button using the shared game palette."""
         return tk.Button(
             parent, text=text, command=command, bg=ACCENT, fg="#ffffff",
             activebackground="#91a4ff", activeforeground="#ffffff",
