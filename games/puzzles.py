@@ -235,7 +235,7 @@ class LightsOut(GameWindow):
         grid = tk.Frame(self.body, bg=BG)
         grid.pack()
         self.buttons = []
-        self.state = [[random.choice([0, 1]) for _ in range(5)] for _ in range(5)]
+        self.state = [[0] * 5 for _ in range(5)]
         for row in range(5):
             line = []
             for col in range(5):
@@ -246,6 +246,12 @@ class LightsOut(GameWindow):
                 button.grid(row=row, column=col, padx=3, pady=3)
                 line.append(button)
             self.buttons.append(line)
+        for _ in range(18):
+            row, col = random.randrange(5), random.randrange(5)
+            for r, c in ((row, col), (row - 1, col), (row + 1, col),
+                         (row, col - 1), (row, col + 1)):
+                if 0 <= r < 5 and 0 <= c < 5:
+                    self.state[r][c] ^= 1
         self._draw()
 
     def _toggle(self, row, col):
