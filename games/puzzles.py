@@ -15,6 +15,7 @@ class Minesweeper(GameWindow):
         self.info.pack(pady=5)
         self.grid = tk.Frame(self.body, bg=BG)
         self.grid.pack()
+        self.button(self.body, "New board", self._reset).pack(pady=10)
         self._reset()
 
     def _reset(self):
@@ -34,7 +35,6 @@ class Minesweeper(GameWindow):
             button.grid(row=index // 9, column=index % 9, padx=1, pady=1)
             button.bind("<Button-3>", lambda event, i=index: self._flag(i))
             self.buttons.append(button)
-        self.button(self.body, "New board", self._reset).pack(pady=10)
 
     def _neighbors(self, index):
         row, col = divmod(index, 9)
@@ -278,7 +278,6 @@ class SlidingPuzzle(GameWindow):
         grid.pack()
         self.buttons = []
         self.tiles = list(range(1, 16)) + [0]
-        random.shuffle(self.tiles)
         for index in range(16):
             button = tk.Button(
                 grid, text="", width=5, height=2, font=("Segoe UI", 16, "bold"),
@@ -288,7 +287,7 @@ class SlidingPuzzle(GameWindow):
             button.grid(row=index // 4, column=index % 4, padx=4, pady=4)
             self.buttons.append(button)
         self.button(self.body, "Shuffle", self._shuffle).pack(pady=10)
-        self._draw()
+        self._shuffle()
 
     def _shuffle(self):
         self.tiles = list(range(1, 16)) + [0]
